@@ -64,3 +64,6 @@ package-lock.json
 /dist/
 /types/
 /tsc/
+/packages/**/es/
+/packages/**/lib/
+/packages/**/types/

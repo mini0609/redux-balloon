@@ -1,0 +1,28 @@
+{
+  "name": "apiModel",
+  "version": "1.0.4",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "types": "types/index.d.ts",
+  "files": [
+    "dist",
+    "es",
+    "types",
+    "lib"
+  ],
+  "dependencies": {
+    "@types/invariant": "^2.2.31",
+    "@types/redux-actions": "^2.6.1",
+    "invariant": "^2.2.4",
+    "redux-actions": "^2.6.5",
+    "redux-balloon": "^2.0.8",
+    "seamless-immutable": "^7.1.4"
+  }
+}
