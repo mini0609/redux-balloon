@@ -1,4 +1,3 @@
-import { isLatestForApiAction, isEveryForApiAction } from '../../actionDefiner';
 import { ApiStatus } from './constants';
 import {
   API_STATUS_INIT,
@@ -7,10 +6,11 @@ import {
 } from './actionTypes';
 import {
   StringIndexObject,
-  ApiStatusInfo,
   ManualSagasDefinitionFunc,
-  ApiMap
-} from '../..';
+  isLatestForApiAction,
+  isEveryForApiAction
+} from 'redux-balloon';
+import { ApiStatusInfo, ApiMap } from './types';
 import { mergeApiMap, getApiMap } from './apiMap';
 
 const handlerMapForLatest: StringIndexObject = {};

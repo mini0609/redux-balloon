@@ -19,7 +19,6 @@ import {
   runSagaModules
 } from './sagaModules';
 import createStore from './createStore';
-import promiseMiddleware from './middlewares/promiseMiddleware';
 import {
   identity,
   any,
@@ -27,17 +26,15 @@ import {
   lazyInvoker,
   warning,
   isProdENV,
-  getTypeOfCancelSaga,
-  isPlainObject
+  getTypeOfCancelSaga
 } from './utils';
 import { BizStatus } from './constants';
-import createApiModel from './models/api';
-import { mergeApiMap } from './models/api/apiMap';
 import { Biz, BizRunOptions } from './types/balloon';
 import { StringIndexObject } from './types/utils';
 import { Model } from './types/model';
 import { ActionKey, ActionFuncType } from './types/actions';
 import { SelectorKey, SelectorFuncType } from './types/selectors';
+import promiseMiddleware from './builtins/middleware/promiseMiddleware';
 
 export default function (): Biz {
   let models: Model[] = [];
@@ -144,13 +141,10 @@ export default function (): Biz {
     return models.find(m => m.namespace === namespace);
   }
 
-  function run(opts: BizRunOptions = {}): void {
+  function run(runOpts: BizRunOptions = {}): void {
     if (biz.status === BizStatus.IDLE) {
-      runOpts = opts;
-      runOpts = initBuiltInModel(runOpts);
       updateInjectedArgs();
       const middlewares = initMiddlewares(runOpts);
-
       const { onEnhanceStore = identity } = runOpts;
       const store = createStore({
         ...runOpts,
@@ -173,26 +167,10 @@ export default function (): Biz {
     }
   }
 
-  function initBuiltInModel(opts: BizRunOptions): BizRunOptions {
-    const rst = { ...opts };
-    if (isPlainObject(opts.apiModel)) {
-      biz.model(createApiModel(opts.apiModel));
-      rst.usePromiseMiddleware = true;
-    }
-    return rst;
-  }
-
   function initMiddlewares(opts: BizRunOptions): any[] {
-    let middlewares = [];
-
-    if (opts.usePromiseMiddleware) {
-      middlewares.push(promiseMiddleware);
-    }
-    const { middlewares: middlewaresOpt = [] } = opts;
-    middlewares = middlewares.concat(middlewaresOpt);
+    const { middlewares = [] } = opts;
     sagaMiddleware = createSagaMiddleware();
-    middlewares.push(sagaMiddleware);
-
+    middlewares.push(promiseMiddleware, sagaMiddleware);
     return middlewares;
   }
 
@@ -210,8 +188,7 @@ export default function (): Biz {
     get selectors() {
       return selectors;
     },
-    getSelector,
-    mergeApiMap
+    getSelector
   };
 
   return biz;

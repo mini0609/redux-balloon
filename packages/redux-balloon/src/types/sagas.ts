@@ -15,8 +15,6 @@ export type Saga<Args extends any[] = any[]> = (
 export type SagaHelperFuncOptions = {
   type: SagaHelperFuncName;
   ms?: number; // Using for "throttle" and "debounce".
-  isRegExpPattern?: boolean; // Using for "regular expression action type".
-  regExpPatternFlags?: string; // Using for "flags of regular expression action type".
 };
 
 export type SagaHelperFuncName =
@@ -71,7 +69,16 @@ export type ManualSagasDefinitionFunc = (
   }
 ) => () => Generator<any, any, any>;
 
+export type ComposeSagasDefinitionFunc = (
+  effects: typeof SagaEffects,
+  extras: typeof ReduxSaga & {
+    getSelector: GetSelectorFunc;
+    getAction: GetActionFunc;
+  }
+) => Array<SimpleSagasDefinitionMapObject | (() => Generator<any, any, any>)>;
+
 export type SagasDefinition =
   | SagasDefinitionMapObject
   | SimpleSagasDefinitionFunc
-  | ManualSagasDefinitionFunc;
+  | ManualSagasDefinitionFunc
+  | ComposeSagasDefinitionFunc;

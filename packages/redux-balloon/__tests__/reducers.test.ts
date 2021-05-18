@@ -1,4 +1,4 @@
-import balloon, { Model, Action, ApiAction } from '../src/index';
+import balloon, { Model, Action, ApiAction } from '../src';
 
 describe('reducers', () => {
   test('should create reducers', () => {

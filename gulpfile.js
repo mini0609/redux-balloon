@@ -1,29 +1,89 @@
 const gulp = require('gulp');
 const shell = require('gulp-shell');
+const fs = require('fs');
 
-gulp.task('clean for build', shell.task([
-  'rm -rf types es lib wepy dist tsc'
-]));
+const rootPath = 'packages/';
+// const packagesPathArr = ['packages/redux-balloon/']
+const packagesPathArr = fs
+  .readdirSync(rootPath)
+  .filter(item => item !== '.DS_Store')
+  .map(item => `${rootPath + item}/`);
+console.log(packagesPathArr);
 
-gulp.task('tsc', shell.task([
-  'npx tsc -p tsconfig.json --outDir tsc'
-]));
+gulp.task(
+  'clean for build',
+  shell.task(
+    packagesPathArr.map(
+      path => `rm -rf ${path}types ${path}es ${path}lib`
+    )
+  )
+);
 
-gulp.task('remove types for tsc', shell.task([
-  'rm -rf tsc/types'
-]));
+gulp.task(
+  'tsc',
+  shell.task(
+    packagesPathArr.map(
+      path => `npx tsc -p ${path}tsconfig.json --outDir ${path}tsc`
+    )
+  )
+);
 
-gulp.task('babel for es', shell.task([
-  'npx cross-env BABEL_ENV=esm babel tsc --out-dir es'
-]));
+gulp.task(
+  'remove types for tsc',
+  shell.task(
+    packagesPathArr.map(path => `rm -rf ${path}tsc/types`)
+  )
+);
 
-gulp.task('babel for lib', shell.task([
-  'npx cross-env BABEL_ENV=commonjs babel tsc --out-dir lib'
-]));
+gulp.task(
+  'babel for es',
+  shell.task(
+    packagesPathArr.map(
+      path => `npx cross-env BABEL_ENV=esm babel ${path}tsc --out-dir ${path}es`
+    )
+  )
+);
 
-gulp.task('copy for wepy', shell.task([
-  'cp -r tsc wepy'
-]));
+gulp.task(
+  'babel for lib',
+  shell.task(
+    packagesPathArr.map(
+      path =>
+        `npx cross-env BABEL_ENV=commonjs babel ${path}tsc --out-dir ${path}lib`
+    )
+  )
+);
+
+gulp.task(
+  'remove tsc',
+  shell.task(packagesPathArr.map(path => `rm -rf ${path}tsc`))
+);
+
+const build = gulp.series(
+  'clean for build',
+  'tsc',
+  'remove types for tsc',
+  gulp.parallel(
+    'babel for es',
+    'babel for lib'
+    // gulp.series('copy for wepy', 'replaceSagaReference for wepy')
+  ),
+  'remove tsc'
+);
+
+gulp.task('build:watch', done => {
+  console.log('====== watching .ts(x) files... =====');
+
+  gulp.watch(packagesPathArr.map(path => `${path}src/**/*.ts`), gulp.parallel('build'));
+});
+
+module.exports = {
+  build
+};
+
+// gulp.task('copy for wepy', shell.task([
+//   'cp -r tsc wepy'
+// ]));
 
 /*gulp.task('replaceSagaReference for wepy', function () {
   gulp.src('./wepy/sagaImports.js')
@@ -48,28 +108,8 @@ gulp.task('copy for wepy', shell.task([
     .pipe(gulp.dest('./wepy'));
 });*/
 
-gulp.task('babel for wepy', shell.task([
-  'npx cross-env BABEL_ENV=wepy babel wepy --out-dir wepy'
-]));
-
-gulp.task('remove tsc', shell.task([
-  'rm -rf tsc'
-]));
-
-const build = gulp.series(
-  'clean for build',
-  'tsc',
-  'remove types for tsc',
-  gulp.parallel(
-    'babel for es',
-    'babel for lib',
-    // gulp.series('copy for wepy', 'replaceSagaReference for wepy')
-  ),
-  'remove tsc'
-);
-
-module.exports = {
-  build
-};
+// gulp.task('babel for wepy', shell.task([
+//   'npx cross-env BABEL_ENV=wepy babel wepy --out-dir wepy'
+// ]));
 
 // "build:umd": "cross-env BABEL_ENV=umd rollup -c && es-check es5 dist/redux-balloon.min.js",

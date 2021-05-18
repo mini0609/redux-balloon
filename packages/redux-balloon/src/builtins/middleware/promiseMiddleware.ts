@@ -1,5 +1,5 @@
 import { AnyAction } from 'redux';
-import { isApiAction, isPromiseAction } from '../actionDefiner';
+import { isApiAction, isPromiseAction } from '../../actionDefiner';
 
 export default function promiseMiddleware() {
   return (next: any) => (action: AnyAction) => {

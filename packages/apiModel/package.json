@@ -1,0 +1,32 @@
+{
+  "name": "apiModel",
+  "version": "1.0.3-beta",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "types": "types/index.d.ts",
+  "files": [
+    "dist",
+    "es",
+    "types",
+    "lib"
+  ],
+  "peerDependencies": {
+    "invariant": ">=2.2.4",
+    "redux-actions": ">=2.6.5",
+    "redux-balloon": "^2.0.8-beta",
+    "seamless-immutable": ">=7.1.4"
+  },
+  "devDependencies": {
+    "invariant": "^2.2.4",
+    "redux-actions": "^2.6.5",
+    "redux-balloon": "2.0.8-beta",
+    "seamless-immutable": "^7.1.4"
+  }
+}

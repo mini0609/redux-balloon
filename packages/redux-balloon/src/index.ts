@@ -1,8 +1,8 @@
 import balloon from './balloon';
+import { PromiseAction } from './types/actions';
 
 export { REDUCER_ROOT_NAMESPACE, NAMESPACE_SEP } from './constants';
 export { BizStatus } from './constants';
-export { ApiStatus } from './models/api/constants';
 
 /* export types */
 export type { Biz, BizRunOptions } from './types/balloon';
@@ -17,9 +17,7 @@ export type {
   MetaOfApiAction,
   PayLoadOfAction,
   MetaOfAction,
-  ApiAction,
   MetaOfPromiseAction,
-  PromiseAction,
   DefApiActionFunc,
   DefPromiseActionFunc,
   ActionDefiner,
@@ -29,7 +27,9 @@ export type {
   ActionsDefinitionReturnType,
   ActionKey,
   ActionFuncType,
-  GetActionFunc
+  GetActionFunc,
+  PromiseAction,
+  ApiAction
 } from './types/actions';
 
 export type { Model } from './types/model';
@@ -71,14 +71,7 @@ export type {
   NonNullableAndRequiredProperties
 } from './types/utils';
 
-export type {
-  ApiModelOptions,
-  ApiStatusInfo,
-  ApiModelState,
-  InitApiStatusAction,
-  ApiModelActions,
-  ApiModelSelectors,
-  ApiMap
-} from './types/models/apiModel';
+export { isPlainObject } from './utils';
+export { isLatestForApiAction, isEveryForApiAction } from './actionDefiner';
 
 export default balloon;

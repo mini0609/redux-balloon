@@ -1,4 +1,4 @@
-import { ApiMap } from '../../types/models/apiModel';
+import { ApiMap } from './types';
 
 let apiMap: ApiMap = {};
 

@@ -20,29 +20,25 @@ export interface MetaOfApiAction {
   isLatest?: boolean;
 }
 
-export type PayLoadOfAction<
-  Action extends { payload: any }
-> = Action['payload'];
+export type PayLoadOfAction<Action extends { payload: any }> =
+  Action['payload'];
 
 export type MetaOfAction<Action extends { meta: any }> = Action['meta'];
-
-export type ApiAction<Payload> = ActionMeta<Payload, MetaOfApiAction>;
 
 export interface MetaOfPromiseAction {
   isPromise: true;
 }
 
-export type PromiseAction<Payload> = ActionMeta<Payload, MetaOfPromiseAction>;
-
+export type ActionDefinerActionDef<Payload, Meta> = string | ActionDefinitionTuple<Payload, Meta>
 export type DefApiActionFunc = <Payload, Meta>(
-  actDef: string | ActionDefinitionTuple<Payload, Meta>,
+  actDef: ActionDefinerActionDef<Payload, Meta>,
   isLatest?: boolean
 ) => NonNullableAndRequiredProperties<
   ActionDefinitionTuple<Payload, MetaOfApiAction>
 >;
 
 export type DefPromiseActionFunc = <Payload, Meta>(
-  actDef: string | ActionDefinitionTuple<Payload, Meta>
+  actDef: ActionDefinerActionDef<Payload, Meta>
 ) => NonNullableAndRequiredProperties<
   ActionDefinitionTuple<Payload, MetaOfPromiseAction>
 >;
@@ -74,10 +70,8 @@ export type ActionsDefinitionReturnType<M> = M extends {
 
 export type ActionKey<M> = keyof ActionsDefinitionReturnType<M>;
 
-export type ActionFuncType<
-  M extends Model,
-  K extends ActionKey<M>
-> = ActionsDefinitionReturnType<M>[K];
+export type ActionFuncType<M extends Model, K extends ActionKey<M>> =
+  ActionsDefinitionReturnType<M>[K];
 
 type GetActionByModel = <M extends Model, K extends ActionKey<M>>(
   model: M,
@@ -87,3 +81,7 @@ type GetActionByModel = <M extends Model, K extends ActionKey<M>>(
 type GetAction = (key: string) => (...args: any[]) => any;
 
 export type GetActionFunc = GetActionByModel & GetAction;
+
+export type PromiseAction<Payload> = ActionMeta<Payload, MetaOfPromiseAction>;
+
+export type ApiAction<Payload> = ActionMeta<Payload, MetaOfApiAction>;

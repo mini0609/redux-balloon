@@ -1,4 +1,4 @@
-import balloon, { Model } from '../src/index';
+import balloon, { Model } from '../src';
 
 describe('getSelector', () => {
   test('should getSelector', () => {

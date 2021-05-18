@@ -12,7 +12,7 @@ import {
   GetSelectorFunc,
   Model,
   StringIndexObject
-} from '.';
+} from './index';
 
 function addSelectorModule(
   model: Model,
@@ -59,8 +59,6 @@ function createSelectors(
         state = path(namespacePathArray, state);
         return selector.call(this, state, ...args);
       };
-      map[key].sourceFunName = selector.name;
-      map[key].sourceFunArgLength = selector.length;
     }, map);
     selectorMap = { ...selectorMap, ...map };
     return map;

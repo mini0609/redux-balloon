@@ -14,9 +14,9 @@ import {
   Saga,
   SagasDefinition,
   SagaHelperFuncOptions,
-  Action,
-  StringIndexObject
-} from '.';
+  StringIndexObject,
+  SimpleSagaFunc
+} from './index';
 
 const sagaEffects = ReduxSaga.effects;
 
@@ -51,7 +51,7 @@ function runSagaModules(
 
   forEachObjIndexed((mod, namespace) => {
     const sagas = mod[0];
-    const saga = createSaga(sagas, namespace, opts, _extras);
+    const saga = createSaga(sagas, namespace, _extras);
     runSaga(saga)
       .toPromise()
       .catch((err: Error) => {
@@ -66,92 +66,96 @@ function runSagaModules(
 function createSaga(
   sagas: SagasDefinition,
   namespace: string,
-  opts: any,
   extras: any
 ): () => Generator<any> {
   const { fork, take, cancel } = sagaEffects;
 
   return function* () {
-    const watcher = createWatcher(sagas, namespace, opts, extras);
-    const task = yield fork(watcher);
-
+    const tasks: any = [];
+    const watchers = createWatchers(sagas, namespace, extras);
+    for (let i = 0; i < watchers.length; i++) {
+      tasks.push(yield fork(watchers[i]));
+    }
     yield take(getTypeOfCancelSaga(namespace));
-    yield cancel(task as any);
+    yield cancel(tasks);
   };
 }
 
-function createWatcher(
+function createWatchers(
   sagas: SagasDefinition,
   namespace: string,
-  opts: any,
   extras: any
-): () => Generator<any> {
-  let sagasObj: any;
-  let needInject = true;
+): any[] {
+  let sagasVal: any;
+  let needInject: boolean = true;
 
   if (isFunction(sagas)) {
-    sagasObj = sagas(sagaEffects, extras);
-    if (isFunction(sagasObj)) {
-      return sagasObj;
+    sagasVal = sagas(sagaEffects, extras);
+    if (isFunction(sagasVal)) {
+      return [sagasVal];
     } else {
+      sagasVal = [].concat(...[sagasVal]);
       needInject = false;
     }
   } else {
-    sagasObj = sagas;
+    sagasVal = [sagas];
   }
 
-  return function* () {
-    const typeWhiteList = [
-      'takeEvery',
-      'takeLatest',
-      'takeLeading',
-      'throttle',
-      'debounce'
-    ];
-    const keys = Object.keys(sagasObj);
+  const watchers: SimpleSagaFunc[] = [];
+  for (let i = 0; i < sagasVal.length; i++) {
+    const _sagaVal = sagasVal[i];
+    if (isFunction(_sagaVal)) {
+      watchers.push(_sagaVal);
+    } else {
+      const watcher = function* () {
+        const typeWhiteList = [
+          'takeEvery',
+          'takeLatest',
+          'takeLeading',
+          'throttle',
+          'debounce'
+        ];
+        const keys = Object.keys(_sagaVal);
 
-    for (const key of keys) {
-      let pattern: string | Function = key;
-      let type = 'takeEvery'; // "takeEvery" is default.
-      let saga = sagasObj[key];
-      let opts: SagaHelperFuncOptions;
+        for (const key of keys) {
+          const pattern: string | Function = key;
+          let type = 'takeEvery'; // "takeEvery" is default.
+          let saga = _sagaVal[key];
+          let opts: SagaHelperFuncOptions;
 
-      if (isArray(saga)) {
-        saga = sagasObj[key][0];
-        opts = sagasObj[key][1];
-        type = opts.type;
+          if (isArray(saga)) {
+            saga = _sagaVal[key][0];
+            opts = _sagaVal[key][1];
+            type = opts.type;
 
-        if (!typeWhiteList.includes(type)) {
-          throw new Error(
-            `only support these types: [${typeWhiteList}], but got: ${type}. namespace: ${namespace}, key: ${key}`
+            if (!typeWhiteList.includes(type)) {
+              throw new Error(
+                `only support these types: [${typeWhiteList}], but got: ${type}. namespace: ${namespace}, key: ${key}`
+              );
+            }
+          }
+
+          const handler = handleActionForHelper(
+            saga,
+            { namespace, key, needInject },
+            extras
           );
+
+          switch (type) {
+            case 'throttle':
+            case 'debounce':
+              yield (sagaEffects as any)[type](opts!.ms, pattern, handler);
+              break;
+            default:
+              // takeEvery, takeLatest, takeLeading.
+              yield (sagaEffects as any)[type](pattern, handler);
+          }
         }
-
-        // regular expression action type.
-        const { isRegExpPattern, regExpPatternFlags } = opts;
-        if (isRegExpPattern) {
-          pattern = (regExp => (action: Action<any>) =>
-            regExp.test(action.type))(new RegExp(key, regExpPatternFlags));
-        }
-      }
-
-      const handler = handleActionForHelper(
-        saga,
-        { namespace, key, needInject },
-        extras
-      );
-
-      switch (type) {
-        case 'throttle':
-        case 'debounce':
-          yield (sagaEffects as any)[type](opts!.ms, pattern, handler);
-          break;
-        default:
-          // takeEvery, takeLatest, takeLeading.
-          yield (sagaEffects as any)[type](pattern, handler);
-      }
+      };
+      watchers.push(watcher);
     }
-  };
+  }
+  return watchers;
 }
 
 function handleActionForHelper(

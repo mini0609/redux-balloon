@@ -1,0 +1,16 @@
+{
+  "packages": [
+    "packages/*"
+  ],
+  "version": "independent",
+  "command": {
+    "publish": {
+      "ignoreChanges": ["ignored-file", "*.md"],
+      "message": "chore(release): publish",
+      "registry": "http://npm.internal.supermonkey.com.cn:4873"
+    },
+    "bootstrap": {
+      "npmClientArgs": ["--no-package-lock"]
+    }
+  }
+}

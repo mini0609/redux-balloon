@@ -4,10 +4,9 @@ import {
   ApiModelOptions,
   ApiModelActions,
   ApiModelSelectors,
-  ApiModelState,
-  Model
-} from '../..';
-import { isPlainObject } from '../../utils';
+  ApiModelState
+} from './types';
+import { Model, isPlainObject } from 'redux-balloon';
 import {
   API_STATUS_INIT,
   API_STATUS_INIT_PUT,
@@ -55,7 +54,6 @@ export default function createApiModel(
         }
       };
     },
-
     workflow: createApiWorkflowCreator(apiMap)
   };
 }

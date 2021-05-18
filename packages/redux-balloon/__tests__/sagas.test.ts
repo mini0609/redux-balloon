@@ -1,4 +1,4 @@
-import balloon, { Model, Action } from '../src/index';
+import balloon, { Model, Action } from '../src';
 
 describe('sagas', () => {
   test('should create sagas', done => {

@@ -1,6 +1,6 @@
 import { Action } from 'redux-actions';
-import { StringIndexObject } from '../utils';
-import { ApiStatus } from '../..';
+import { StringIndexObject } from 'redux-balloon';
+import { ApiStatus } from '../constants';
 
 export type ApiMap = StringIndexObject;
 

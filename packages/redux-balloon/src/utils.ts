@@ -1,4 +1,4 @@
-import { StringIndexObject } from '.';
+import { StringIndexObject } from './index';
 import { NAMESPACE_SEP } from './constants';
 
 export function pathArrayOfNS(namespace: string): string[] {
