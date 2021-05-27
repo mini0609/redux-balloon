@@ -17,13 +17,7 @@
     "types",
     "lib"
   ],
-  "peerDependencies": {
-    "invariant": ">=2.2.4",
-    "redux-actions": ">=2.6.5",
-    "redux-balloon": "^2.0.8-beta",
-    "seamless-immutable": ">=7.1.4"
-  },
-  "devDependencies": {
+  "dependencies": {
     "invariant": "^2.2.4",
     "redux-actions": "^2.6.5",
     "redux-balloon": "^2.0.8",
